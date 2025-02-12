@@ -1,0 +1,995 @@
+import { IBlock } from "../../../framework/src/IBlock";
+import { Message } from "../../../framework/src/Message";
+import { BlockComponent } from "../../../framework/src/BlockComponent";
+import MessageEnum, {
+  getName,
+} from "../../../framework/src/Messages/MessageEnum";
+import { runEngine } from "../../../framework/src/RunEngine";
+
+// Customizable Area Start
+import storage from 'framework/src/StorageProvider';
+import React from "react";
+// Customizable Area End
+
+export const configJSON = require("./config");
+
+export interface Props {
+  // Customizable Area Start
+  navigation: any;
+  id: string;
+  // Customizable Area End
+}
+
+// Customizable Area Start
+
+export interface BasicDetailsData {
+  data: {
+    id: string,
+    type: string,
+    attributes: {
+        id: 13,
+        first_name: string,
+        last_name: string,
+        email: string,
+        country_code: 91,
+        full_phone_number: null,
+        phone_number: 9885674763,
+        dob: string,
+        address: string,
+        additional_address: string,
+        apt_suite: string,
+        nation: {
+            id: 1,
+            name: string
+        },
+        state: {
+            id: 1,
+            name: string,
+            nation_id: 1
+        },
+        city: {
+            id: 1,
+            name: string,
+            state_id: 9
+        },
+        zipcode: string,
+        profile_status: string,
+        job_title: string,
+        job_description: string,
+        skills: any[],
+        title_description: null,
+        price: null,
+        work_history: null,
+        profile_image: null,
+        created_at: string,
+        updated_at: string
+    }
+}
+}
+export interface Touched {
+  firstName: boolean;
+  lastName: boolean;
+  phoneNumber: boolean;
+  email: boolean;
+  organization: boolean;
+  teamName: boolean;
+  userType: boolean;
+  rating: boolean;
+  gender: boolean;
+  address: boolean;
+  country: boolean;
+  state: boolean;
+  city: boolean;
+}
+
+export interface Error {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  email: string;
+  organization: string;
+  teamName: string;
+  userType: string;
+  rating: string;
+  gender: string;
+  address: string;
+  country: string;
+  state: string;
+  city: string;
+}
+
+export interface ResponseJson {
+  id: string;
+  attributes: {
+    first_name: string;
+    last_name: string;
+    phone_number: string;
+    email: string;
+    organization: string;
+    team_name: string;
+    i_am: string;
+    stars_rating: string;
+    gender: string;
+    address: string;
+    country: string;
+    state: string;
+    city: string;
+    file: {
+      file_name: string;
+    }
+  }
+}
+
+export interface Dropdown {
+  label: string;
+  value: string;
+}
+
+export interface Data {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  email: string;
+  organization: string;
+  teamName: string;
+  userType: string;
+  rating: string;
+  gender: string;
+  address: string;
+  country: string;
+  state: string;
+  city: string;
+  file: string;
+}
+// Customizable Area End
+
+interface S {
+  // Customizable Area Start
+  selectedFile: string;
+  freelancerName:string
+  freelancerEmail:string
+  dateOfBirth: any
+  streetAddress:string
+  suite:string
+  additionalAddress:string
+  country: string,
+  city: string,
+  state: string,
+  zipCode: string,
+  phone: string,
+  countryCode: string,
+  profileTitle: string,
+  skills: string,
+  description: string,
+  dateOfBirthClientError:string
+  streetAddressError:string
+  countryClientError:string
+  cityError:string
+  profileTitleError:string
+  suiteError:string
+  phoneError:string
+  skillsError:string
+  descriptionError:string
+  zipCodeError:string
+  stateError:string
+  authToken:string
+  fileInputRef:any;
+  userID:number |null;
+  basicDetailsData : BasicDetailsData;
+  skillsArray: string []
+  countryList: {
+    id: number,
+    name: string,
+    code: string,
+}[],
+  stateList:{
+      id: number,
+      name: string
+  }[]
+  selectedCountryList:{
+    id: number,
+    name: string,
+    code: string,
+  }| undefined 
+  profileImage:any;
+  imageUploadError:string,
+backdata:boolean,
+do_It_Later:boolean,
+profileDetails: any,
+experiencedata: boolean
+  // Customizable Area End
+}
+
+interface SS {
+  // Customizable Area Start
+  id: number;
+  // Customizable Area End
+}
+
+export default class ClientBasicDetailsFormController extends BlockComponent<
+  Props,
+  S,
+  SS
+> {
+  // Customizable Area Start
+  apiBasicDetailsID: string = "";
+  countryListID:string = "";
+  stateListID:string="";
+  updateProfileImageId:string="";
+  handleform_backAPIid:string="";
+  finishProfileID:string="";
+  profileDetailsApiCallID:string="";
+  backApiCallId: string="";
+  profileStatusID:string=""
+  // Customizable Area End
+
+  constructor(props: Props) {
+    super(props);
+    this.receive = this.receive.bind(this);
+    this.handleSkillsChange = this.handleSkillsChange.bind(this);
+    this.handleSkillsKeyPress = this.handleSkillsKeyPress.bind(this);
+
+    this.subScribedMessages = [
+      // Customizable Area Start
+      getName(MessageEnum.RestAPIResponceMessage),
+   getName(MessageEnum.NavigationPayLoadMessage)
+      // Customizable Area End
+    ];
+
+    this.state = {
+      // Customizable Area Start
+      selectedFile:"",
+      freelancerName:"",
+      freelancerEmail:"",
+      dateOfBirth: "",
+      streetAddress:"",
+      suite:"",
+      additionalAddress:"",
+      country: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      phone: "",
+      countryCode: "",
+      profileTitle: "",
+      skills: "",
+      description: "",
+      dateOfBirthClientError:"",
+      streetAddressError:"",
+      countryClientError:"",
+      cityError:"",
+      profileTitleError:"",
+      suiteError:"",
+      phoneError:"",
+      skillsError:"",
+      descriptionError:"",
+      zipCodeError:"",
+      stateError:"",
+      authToken:"",
+      userID: null,
+      skillsArray:  [],
+      fileInputRef:React.createRef(),
+      basicDetailsData : {
+        "data": {
+            "id": "13",
+            "type": "freelancer_profile_basic_details",
+            "attributes": {
+                "id": 13,
+                "first_name": "seem",
+                "last_name": "jet",
+                "email": "seem@mailinator.com",
+                "country_code": 91,
+                "full_phone_number": null,
+                "phone_number": 9885674763,
+                "dob": "2010-05-12",
+                "address": "ABCd G",
+                "additional_address": "ST Apt",
+                "apt_suite": "345",
+                "nation": {
+                    "id": 1,
+                    "name": "Andorra"
+                },
+                "state": {
+                    "id": 1,
+                    "name": "Canillo",
+                    "nation_id": 1
+                },
+                "city": {
+                    "id": 1,
+                    "name": "Aguila",
+                    "state_id": 9
+                },
+                "zipcode": "110990",
+                "profile_status": "incomplete",
+                "job_title": "Project manager",
+                "job_description": "job_description",
+                "skills": [
+                    "ROR",
+                    "Java\n",
+                    "Test"
+                ],
+                "title_description": null,
+                "price": null,
+                "work_history": null,
+                "profile_image": null,
+                "created_at": "2024-07-01T07:49:21.359Z",
+                "updated_at": "2024-09-10T07:37:33.073Z"
+            }
+        }
+    },
+    countryList: [],
+    stateList:[],
+    selectedCountryList: undefined,
+    profileImage:"",
+    imageUploadError:"",
+    backdata:false,
+    do_It_Later:false,
+    profileDetails: [],
+    experiencedata: false
+
+      // Customizable Area End
+    };
+
+    // Customizable Area Start
+    this.handleDateChange = this.handleDateChange.bind(this);
+    this.handleStreetAdressChange = this.handleStreetAdressChange.bind(this)
+    this.handleSuiteChange = this.handleSuiteChange.bind(this);
+    this.handleAddressChange = this.handleAddressChange.bind(this);
+    this.handleCountryChange = this.handleCountryChange.bind(this);
+    this.handleCityChange = this.handleCityChange.bind(this);
+    this.handleStateChange = this.handleStateChange.bind(this);
+    this.handleZipCodeChange = this.handleZipCodeChange.bind(this)
+    this.handlePhoneChange = this.handlePhoneChange.bind(this);
+    this.handleProfileTitleChange = this.handleProfileTitleChange.bind(this);
+    this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
+    runEngine.attachBuildingBlock(this as IBlock, this.subScribedMessages);
+    // Customizable Area End
+  }
+
+  async receive(from: string, message: Message) {
+    // Customizable Area Start
+    if (message.id === getName(MessageEnum.NavigationPayLoadMessage)) {
+      let sessionData = message.getData(getName(MessageEnum.SessionResponseData));
+      this.setState({backdata:sessionData.backToCustom})
+      if ( sessionData.backToCustom) {
+      this.handleBackBasicdata()
+      }
+      // return;
+    }
+
+    if (getName(MessageEnum.RestAPIResponceMessage) === message.id) {
+      const webApiRequestCallId = message.getData(
+        getName(MessageEnum.RestAPIResponceDataMessage)
+      );
+  
+      let webResponseJson = message.getData(
+        getName(MessageEnum.RestAPIResponceSuccessMessage)
+      );
+  
+      if (webResponseJson) {
+       
+        this.handleCountryResponse(webApiRequestCallId,webResponseJson)
+        this.handleStateResponse(webApiRequestCallId,webResponseJson)
+        if (webApiRequestCallId === this.profileDetailsApiCallID) {
+          if(webResponseJson){
+            this.setState({ profileDetails: webResponseJson.data })
+          }
+        }
+        this.handleBackResponse(webApiRequestCallId,webResponseJson)
+      }
+    }
+    // Customizable Area End
+  }
+
+  // Customizable Area Start
+  async componentDidMount() {
+    this.setState({
+      userID: await storage.get('accountId'),
+      authToken: await storage.get('authToken'),
+      freelancerName: await storage.get('accountHolderName'),
+      freelancerEmail: await storage.get('UserEmail')
+    });
+    this.getCountriesList()
+    this.getProfileDetails()
+    const saveData= await storage.get('customForm')
+    this.setState({experiencedata:saveData})
+    this.formUserdataAPI()
+  }
+  validateForm = () => {
+    const { 
+      dateOfBirth,
+      streetAddress,
+      country,
+      city,
+      state,
+      profileTitle,
+      phone,
+      description,
+      zipCode,
+      suite
+    } = this.state;
+  
+    let isValid = true;
+  
+    if (!dateOfBirth) {
+      this.setState({ dateOfBirthClientError: "* Please enter your Date of Birth" });
+      isValid = false;
+    } else {
+      this.setState({ dateOfBirthClientError: "" });
+    }
+  
+    if (!streetAddress) {
+      this.setState({ streetAddressError: "* Please enter your street address." });
+      isValid = false;
+    } else {
+      this.setState({ streetAddressError: "" });
+    }
+    //Skills is not required that's  why removed
+    if (!suite) {
+        this.setState({ suiteError: "* Please enter your apt/suite." });
+        isValid = false;
+      } else {
+        this.setState({ suiteError: "" });
+      }
+  
+    if (!country) {
+      this.setState({ countryClientError: "* Please enter your country." });
+      isValid = false;
+    } else {
+      this.setState({ countryClientError: "" });
+    }
+  
+    if (!city) {
+      this.setState({ cityError: "* Please enter your city." });
+      isValid = false;
+    } else {
+      this.setState({ cityError: "" });
+    }
+  
+    if (!phone) {
+      this.setState({ phoneError: "* Please enter your phone number." });
+      isValid = false;
+    } else {
+      this.setState({ phoneError: "" });
+    }
+  
+    if (!profileTitle) {
+      this.setState({ profileTitleError: "* Please enter your Profile" });
+      isValid = false;
+    } else {
+      this.setState({ profileTitleError: "" });
+    }
+
+    if (!description) {
+      this.setState({ descriptionError: "* Please Tell us about yourself" });
+      isValid = false;
+    } else {
+      this.setState({ descriptionError: "" });
+    }
+
+    return isValid;
+  };
+
+  handleCountryResponse = (webApiRequestCallId: any, webResponseJson: any) => {
+      if (webApiRequestCallId === this.countryListID) {
+    if (webResponseJson) {
+      const countries = webResponseJson.map((country: any) => ({
+        id: country.id,
+        name: country.name,
+        code: country.code,
+      }));
+      this.setState({ countryList: countries });
+    } 
+  }
+  }
+
+  handleStateResponse = (webApiRequestCallId: any,webResponseJson: any ) =>{
+    if (webApiRequestCallId === this.stateListID) {
+      const states = webResponseJson.map((state: any) => ({
+        id: state.id,
+        name: state.name,
+      }));
+      let state=this.state.state;
+      this.setState({ stateList: states ,state});
+      
+    }
+  }
+
+  handleBackResponse = (webApiRequestCallId: any,webResponseJson: any) => {
+    if (webApiRequestCallId === this.backApiCallId) {
+      this.setStateFromJson(webResponseJson)   
+   }
+  }
+
+  setStateFromJson(jsonData:any) {
+    const {
+          dob,
+          country,
+          address,
+          additional_address,
+          apt_suite,
+          nation,
+          state,
+          city,
+          zipcode,
+          job_title,
+          job_description,
+          profile_image,
+          full_phone_number,
+          skills,
+          country_code,
+          nation_id,
+          phone_number
+    } =jsonData.current_user;
+    console.log(jsonData,"jsonData.data.attributes")
+    console.log(jsonData.current_user,"current_user")
+    const selectedCountry = this.state.countryList.find((country) => country.id === nation_id)?.name || '';
+    
+    this.setState({
+       dateOfBirth:dob,
+      streetAddress:address,
+      suite:apt_suite,
+      additionalAddress:additional_address,
+      country:selectedCountry,
+      state:state?.id,
+      zipCode:zipcode,
+      profileTitle:job_title,
+      city:city,
+      skillsArray:skills,
+      description:job_description,
+      profileImage:profile_image?.url,
+      phone:phone_number,
+      countryCode:country_code
+     });
+     this.getStateList(nation_id);
+  }
+
+  formUserdataAPI(){
+    if(this.state.experiencedata){
+      this.handleBackBasicdata()
+    }
+  }
+  
+  handleNext = () => {
+    if (this.validateForm()) {
+      this.setState({
+        dateOfBirthClientError:"",
+        streetAddressError:"",
+        countryClientError:"",
+        cityError:"",
+        profileTitleError:"",
+        phoneError:"",
+        descriptionError:"",
+        zipCodeError: "",
+        suiteError:"",
+      });
+        this.handleFinishProfile();
+        this.handleUpdateProfileImage(this.state.selectedFile);
+       this.profileStatus();
+       this.props.navigation.navigate( 'ClientHomePage');
+
+    }
+  };  
+   handleDateChange(event: { target: { value: any; }; }) {
+    const inputDate = event.target.value;
+    const currentDate = new Date().toISOString().split('T')[0]; 
+  
+    if (inputDate > currentDate) {
+      this.setState({
+        dateOfBirthClientError: "* Date of birth cannot be in the future.",
+      });
+      return;
+    }
+  
+    this.setState({
+      dateOfBirth: inputDate,
+      dateOfBirthClientError: "",
+    });
+  }
+  handleStreetAdressChange(event: { target: { value: any; }; }){
+    this.setState({streetAddress:event.target.value,
+      streetAddressError: "",
+    })
+  }
+
+handleCountryChange(event: { target: { value: any }; }) {
+  const selectedCountryName = event.target.value;
+
+  const selectedCountry = this.state.countryList.find(
+      (country) => country.name === selectedCountryName
+  );
+
+  this.setState({
+      country: selectedCountryName,
+      selectedCountryList: selectedCountry,
+      countryClientError: ""
+  }, () => {
+      if (selectedCountry) {
+          this.getStateList(selectedCountry.id);
+      }
+  });
+}
+
+  handleCityChange(event: { target: { value: any; }; }) {
+    this.setState({ city: event.target.value,
+      cityError: "",
+     });
+  }
+
+  handleStateChange(event: { target: { value: any; }; }) {
+    this.setState({ 
+        state: event.target.value,
+    });
+}
+
+handleSuiteChange(event: { target: { value: any; }; }) {
+  this.setState({ suite: event.target.value,suiteError: ""});
+}
+
+handleAddressChange(event: { target: { value: any; }; }) {
+  this.setState({ additionalAddress: event.target.value,
+    streetAddressError: "",
+   });
+}
+
+handlePhoneChange = (value: any, country: any) => {
+  const countryCode = `+${country.dialCode}`;
+  const phoneNumber = value.replace(country.dialCode, '').replace(/\D/g, ''); // Keep only digits
+  let phoneError = "";
+
+  if (phoneNumber.length < 10) {
+    phoneError = "*Please enter at least 10 digits.";
+  }
+
+  this.setState({
+    countryCode,
+    phone: phoneNumber,
+    phoneError,
+  });
+};
+
+  
+handleZipCodeChange = (event: { target: { value: string; }; }) => {
+  const zipCode = event.target.value.replace(/\D/g, "").slice(0, 6); 
+  let zipCodeError = "";
+  if (zipCode.length < 5) {
+    zipCodeError = "* Zip code must be at least 5 digits";
+  }
+  this.setState({
+    zipCode,
+    zipCodeError
+  });
+};
+
+  
+  validateZipCode = (zipCode: string) => {
+    const zipCodeRegex = /^[0-9]{6}$/; 
+    return zipCodeRegex.test(zipCode);
+  };
+  
+
+  handleProfileTitleChange(event: { target: { value: any; }; }) {
+    this.setState({ profileTitle: event.target.value,
+        profileTitleError: "",
+     });
+  }
+
+  handleDescriptionChange(event: { target: { value: any; }; }) {
+    this.setState({ description: event.target.value,
+      descriptionError:""
+     });
+  }
+  
+  handleFileChange = (event: any) => {
+    const file = event.target.files[0];
+    if (file) {
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+      if (allowedTypes.includes(file.type)) {
+        this.setState(
+          { 
+            profileImage: URL.createObjectURL(file), 
+            selectedFile: file, 
+            imageUploadError: '' 
+          },
+          () => {
+            // Call the API after the state has been updated with the selected file
+            this.handleUpdateProfileImage(file);
+          }
+        );
+      } else {
+        const imageUploadError = `Profile image: You are not allowed to upload "${file.type}" files, allowed types: jpg, jpeg, png`;
+        this.setState({ imageUploadError });
+      }
+    }
+  };
+  handleEditClick = () => {
+    const fileInput = this.state.fileInputRef.current;
+    if (fileInput) {
+      fileInput.click();
+    }
+    this.handleUpdateProfileImage(this.state.selectedFile);
+  }
+  
+
+  getCountriesList = async () => {
+    const header = {
+      "Content-Type": configJSON.validationApiContentType,
+      token: this.state.authToken
+    };
+  
+    const requestMessage = new Message(
+      getName(MessageEnum.RestAPIRequestMessage)
+    );
+
+    this.countryListID = requestMessage.messageId
+
+    requestMessage.addData(
+      getName(MessageEnum.RestAPIResponceEndPointMessage),
+      `bx_block_posts/nations`
+    );
+
+
+    requestMessage.addData(
+      getName(MessageEnum.RestAPIRequestHeaderMessage),
+      JSON.stringify(header)
+    );
+  
+    requestMessage.addData(
+      getName(MessageEnum.RestAPIRequestMethodMessage),
+     "GET"
+    );
+
+    runEngine.sendMessage(requestMessage.id, requestMessage);
+    return true;
+  };
+
+  getStateList = async (stateValue: number|null) => {
+    const header = {
+        "Content-Type": configJSON.validationApiContentType,
+        token: this.state.authToken
+    };
+
+    const requestMessage = new Message(
+        getName(MessageEnum.RestAPIRequestMessage)
+    );
+
+    this.stateListID = requestMessage.messageId;
+
+    requestMessage.addData(
+        getName(MessageEnum.RestAPIResponceEndPointMessage),
+        `bx_block_posts/nations/get_states?id=${stateValue}`
+    );
+
+    requestMessage.addData(
+        getName(MessageEnum.RestAPIRequestHeaderMessage),
+        JSON.stringify(header)
+    );
+
+    requestMessage.addData(
+        getName(MessageEnum.RestAPIRequestMethodMessage),
+        "GET"
+    );
+
+    runEngine.sendMessage(requestMessage.id, requestMessage);
+    return true;
+};
+
+handleUpdateProfileImage = async (updatedIMG: any) => {
+  const updateProfileImage = new Message(
+    getName(MessageEnum.RestAPIRequestMessage)
+  );
+  const header = {
+    token: this.state.authToken
+  };
+  
+  const formdata = new FormData();
+  formdata.append("[data][attributes][profile_image]", updatedIMG);
+  
+  this.updateProfileImageId = updateProfileImage.messageId;
+  updateProfileImage.addData(
+    getName(MessageEnum.RestAPIResponceEndPointMessage),
+    `account_block/accounts/${this.state.userID}/update_client_profile_image`
+  );
+  updateProfileImage.addData(
+    getName(MessageEnum.RestAPIRequestHeaderMessage),
+    JSON.stringify(header)
+  );
+  updateProfileImage.addData(
+    getName(MessageEnum.RestAPIRequestBodyMessage),
+    formdata
+  )
+  updateProfileImage.addData(
+    getName(MessageEnum.RestAPIRequestMethodMessage),
+    configJSON.updateUserMethodeType
+  );
+  runEngine.sendMessage(updateProfileImage.id, updateProfileImage);
+}
+
+handleFinishProfile = () => {
+  const requestMessage = new Message(
+   getName(MessageEnum.RestAPIRequestMessage)
+ );
+ const header = {
+   "token": this.state.authToken
+ };
+ const formData = new FormData();
+ formData.append("account[zipcode]", this.state.zipCode)
+ formData.append("account[dob]", this.state.dateOfBirth)
+ formData.append("account[address]", this.state.streetAddress)
+ formData.append("account[additional_address]", this.state.additionalAddress)
+ formData.append("account[apt_suite]", this.state.suite)
+ formData.append("account[city]", this.state.city)
+ formData.append("account[nation_id]", String(this.state.selectedCountryList?.id || ""))
+ formData.append("account[state_id]", this.state.state)
+ formData.append("account[phone_number]", this.state.phone)
+ formData.append("account[country_code]", this.state.countryCode )
+ formData.append("account[job_title]", this.state.profileTitle)
+ this.state.skillsArray.forEach(skill => {
+  formData.append("account[skills][]", skill);
+});   
+ formData.append("account[job_description]", this.state.description)
+ if (this.state.selectedFile) {
+  formData.append("account[profile_image]", this.state.selectedFile);
+}
+
+ this.finishProfileID = requestMessage.messageId;
+ requestMessage.addData(
+   getName(MessageEnum.RestAPIResponceEndPointMessage), 
+   configJSON.finishProfileApiEndpoint
+ );
+ requestMessage.addData(
+   getName(MessageEnum.RestAPIRequestHeaderMessage),
+   JSON.stringify(header)
+ );
+ requestMessage.addData(
+  getName(MessageEnum.RestAPIRequestBodyMessage),
+  formData
+)
+ requestMessage.addData(
+  getName(MessageEnum.RestAPIRequestMethodMessage),
+  configJSON.finishProfileApiMethod
+);
+ runEngine.sendMessage(requestMessage.id, requestMessage);
+ return true;
+}
+
+getProfileDetails = async () => {
+  const header = {
+    "Content-Type": configJSON.validationApiContentType,
+    token: this.state.authToken
+  };
+
+  const requestMessage = new Message(
+    getName(MessageEnum.RestAPIRequestMessage)
+  );
+
+  this.profileDetailsApiCallID = requestMessage.messageId
+
+  requestMessage.addData(
+    getName(MessageEnum.RestAPIResponceEndPointMessage),
+    configJSON.gethProfileDetailApiEndpoint
+  );
+
+  requestMessage.addData(
+    getName(MessageEnum.RestAPIRequestHeaderMessage),
+    JSON.stringify(header)
+  );
+
+  requestMessage.addData(
+    getName(MessageEnum.RestAPIRequestMethodMessage),
+    configJSON.gethProfileDetailApiMethod
+  );
+
+  runEngine.sendMessage(requestMessage.id, requestMessage);
+  return true;
+};
+
+handleSkillsChange = (event: { target: { value: any; }; }) => {
+  console.log(event.target.value, "event.target.value");
+  this.setState({ 
+    skills: event.target.value,
+    skillsError: "",
+  });
+};
+
+handleSkillsKeyPress = (event: React.KeyboardEvent) => {
+  if (event.key === 'Enter') {
+    event.preventDefault(); 
+
+    this.setState((prevState) => ({
+      skillsArray: [...(prevState.skillsArray || []), prevState.skills],
+      skills: '', 
+      skillsError: '',
+    }));
+  }
+};
+
+handleDeleteSkill = (skillToDelete: string) => {
+  this.setState((prevState) => ({
+    skillsArray: prevState.skillsArray.filter((skill) => skill !== skillToDelete),
+  }));
+};
+
+handleSkillsBlur = () => {
+  const { skills } = this.state;
+  if (skills.trim() !== "") {
+    this.setState((prevState) => ({
+      skillsArray: [...prevState.skillsArray, prevState.skills.trim()],
+      skills: '',
+      skillsError:""
+    }));
+  }
+};
+
+handleBackBasicdata = () => {
+  const header = {
+    "Content-Type": "application/json",
+  token: this.state.authToken
+
+  };
+
+  const requestMessage = new Message(
+    getName(MessageEnum.RestAPIRequestMessage)
+  );
+
+  this.backApiCallId = requestMessage.messageId;
+
+  requestMessage.addData(
+    getName(MessageEnum.RestAPIRequestHeaderMessage),
+    JSON.stringify(header)
+  );
+
+  requestMessage.addData(
+    getName(MessageEnum.RestAPIResponceEndPointMessage),
+    `/account_block/accounts/get_client_profile_online_status`
+  );
+
+  requestMessage.addData(
+    getName(MessageEnum.RestAPIRequestMethodMessage),
+    "GET"
+  );
+
+  runEngine.sendMessage(requestMessage.id, requestMessage);
+};
+
+  doItLater(){
+    this.setState({do_It_Later:true})
+  }
+
+  profileStatus = () => {
+    
+    const header = {
+      "Content-Type": configJSON.getUserListApiContentType,
+      "token": this.state.authToken
+    };
+    let body = {
+      form_type: "client_profile_basic_details",
+      action_type: "submit"
+    }
+    const requestMessage = new Message(
+      getName(MessageEnum.RestAPIRequestMessage)
+    );
+    this.profileStatusID = requestMessage.messageId;
+    requestMessage.addData(
+      getName(MessageEnum.RestAPIResponceEndPointMessage),
+      `account_block/accounts/${this.state.userID}/client_profile_status_update`
+    );
+    requestMessage.addData(
+      getName(MessageEnum.RestAPIRequestBodyMessage),
+      JSON.stringify(body)
+    );
+    requestMessage.addData(
+      getName(MessageEnum.RestAPIRequestHeaderMessage),
+      JSON.stringify(header)
+    );
+    requestMessage.addData(
+      getName(MessageEnum.RestAPIRequestMethodMessage),
+      "PATCH"
+    );
+    runEngine.sendMessage(requestMessage.id, requestMessage);
+    return true;
+
+  };
+  // Customizable Area End
+}
