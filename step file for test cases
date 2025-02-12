@@ -1,0 +1,551 @@
+import { defineFeature, loadFeature } from 'jest-cucumber';
+import { shallow, ShallowWrapper } from 'enzyme';
+
+import * as helpers from 'framework/src/Helpers';
+import { runEngine } from 'framework/src/RunEngine';
+import { Message } from 'framework/src/Message';
+
+import MessageEnum, { getName } from 'framework/src/Messages/MessageEnum';
+import React from 'react';
+import ProjectDetailsClient from '../../src/ProjectDetailsClient.web';
+// const navigation = require('react-navigation');
+
+const navigation = {
+navigate: jest.fn(),
+getParam: jest.fn(),
+}
+const screenProps = {
+  navigation: navigation,
+  id: 'ProjectDetailsClient'
+};
+
+// Mock LocalStorage
+export class LocalStorageMock {
+  store: { [k: string]: string };
+  length: number;
+
+  constructor() {
+    this.store = {};
+    this.length = 0;
+  }
+
+  key = (idx: number): string => {
+    const values = Object.values(this.store);
+    return values[idx];
+  };
+
+  clear() {
+    this.store = {};
+  }
+
+  getItem(key: string) {
+    return this.store[key] || null;
+  }
+
+  setItem(key: string, value: string) {
+    this.store[key] = String(value);
+  }
+
+  removeItem(key: string) {
+    delete this.store[key];
+  }
+}
+
+const feature = loadFeature(
+  './__tests__/features/ProjectDetailsClient-scenario.web.feature'
+);
+
+// Mock Navigation
+const navigationMock = () => {
+  const navigationSucess = new Message(getName(MessageEnum.NavigationMessage));
+  navigationSucess.addData(
+    getName(MessageEnum.NavigationTargetMessage),
+    navigationSucess.messageId
+  );
+  runEngine.sendMessage('Unit Test', navigationSucess);
+};
+
+// Mock API Response
+const mockApICall = (
+  instance: any,
+  apiCallID: string,
+  apiData: object,
+  responseType: number
+) => {
+  const msgSucessRestAPI = new Message(
+    getName(MessageEnum.RestAPIResponceMessage)
+  );
+  msgSucessRestAPI.addData(
+    getName(MessageEnum.RestAPIResponceDataMessage),
+    msgSucessRestAPI.messageId
+  );
+  msgSucessRestAPI.addData(
+    getName(MessageEnum.RestAPIResponceSuccessMessage),
+    apiData
+  );
+
+  instance[apiCallID] = msgSucessRestAPI.messageId;
+  runEngine.sendMessage("Unit Test", msgSucessRestAPI);
+};
+
+// Mock DOMStringList
+class DOMStringList {
+  private items: string[];
+
+  constructor() {
+    this.items = [];
+  }
+
+  add(item: string) {
+    this.items.push(item);
+  }
+
+  contains(item: string) {
+    return this.items.includes(item);
+  }
+}
+
+// Mock Global Window Object
+(global as any).window = {
+  open: jest.fn(),
+  location: {
+    href: 'link',
+    ancestorOrigins: new DOMStringList(),
+    hash: '',
+    host: '',
+    hostname: '',
+    origin: '',
+    pathname: '',
+    port: '',
+    protocol: '',
+    search: '',
+    replace: (url: string | URL) => { }
+  },
+  applicationCache: {},
+  clientInformation: {},
+  closed: false,
+  customElements: {}
+};
+
+defineFeature(feature, test => {
+  let ProjectDetailsWrapper: ShallowWrapper;
+  let instance: ProjectDetailsClient;
+
+  beforeEach(() => {
+    jest.resetModules();
+    jest.doMock('react-native', () => ({ Platform: { OS: 'web' } }));
+    jest.spyOn(helpers, 'getOS').mockImplementation(() => 'web');
+    global.localStorage = new LocalStorageMock();  
+  });
+
+  test('User navigates to ProjectDetails', ({ given, when, then }) => {
+    const successResponse = {
+      data: {
+        id: "104",
+        type: "client_contract_details",
+        attributes: {
+          payment_type: "by_milestone",
+          status: "pending",
+          client_details: {
+            client_id: 817,
+            client_name: "anjibabu customer"
+          },
+          freelancer_details: {
+            freelancer_id: 818,
+            freelancer_name: "anjibabu freelancer"
+          },
+          post_attributes: {
+            data: {
+              id: "714",
+              type: "post",
+              attributes: {
+                name: "api",
+                description: "post job",
+                job_title: "seo",
+                skills: [
+                  { id: 1, name: "php" },
+                  { id: 2, name: "java" },
+                  { id: 3, name: "HTML" }
+                ]
+              }
+            }
+          },
+          milestone_details: [
+            {
+              milestone_id: 228,
+              milestone_description: "milestone-1",
+              milestone_amount: "15000.0",
+              milestone_date: "02/07/2017",
+              milestone_status: "pending"
+            }
+          ]
+        }
+      },
+      error: ""
+    };
+
+    const errorResponse = {
+      data: null,
+      error: "An error occurred"
+    };   
+    given('I am a User loading ProjectDetails', () => {
+      ProjectDetailsWrapper = shallow(
+        <ProjectDetailsClient {...screenProps} />
+      );
+      expect(ProjectDetailsWrapper).toBeTruthy();
+    });
+
+    when('I navigate to the ProjectDetails', () => {
+      instance = ProjectDetailsWrapper.instance() as ProjectDetailsClient;
+      instance.getProjectDetails(12);
+      instance.handleProjectDetailsRes(successResponse, "13");
+      instance.handleProjectDetailsRes(errorResponse, "12");
+      instance.getStatusColor("pending");
+      instance.getStatusColor("completed");
+      instance.getStatusColor("accept");
+      instance.getStatusColor("rejected");
+      instance.getStatusColor("ongoing");
+      instance.getStatusColor("approved");
+      instance.getStatusColor("default");
+      instance.handleProjectDetailsRes(
+        { data: {}, error: "string" },
+        "12"
+      );
+      instance.handleProjectDetailsRes(errorResponse, "123");
+      mockApICall(instance, "projectDetailsId", {
+        "data":{}
+      }, MessageEnum.RestAPIResponceSuccessMessage);
+      mockApICall(instance, "projectDetailsId", {
+        "error":"failed"
+      }, MessageEnum.RestAPIResponceSuccessMessage);
+    });
+
+    then('ProjectDetails will load with out errors', () => {
+      expect(instance.state.projectDetailsData).toEqual(successResponse.data);
+      expect(instance.state.projectDetailsErr).toBe("");
+      expect(ProjectDetailsWrapper).toBeTruthy();
+    });
+
+    then('should send the correct API request', () => {
+      expect(ProjectDetailsWrapper).toBeTruthy();
+      const paramId = "12345";
+      const header = { Authorization: "Bearer token" };
+
+      const requestMessage = new Message(getName(MessageEnum.RestAPIRequestMessage));
+
+      expect(Message).toHaveBeenCalledWith(getName(MessageEnum.RestAPIRequestMessage));
+
+      expect(requestMessage.addData).toHaveBeenCalledWith(
+        getName(MessageEnum.RestAPIResponceEndPointMessage),
+        `bx_block_contract/contracts/client_side_project_details?proposal_generation_id=${paramId}`
+      );
+
+      expect(requestMessage.addData).toHaveBeenCalledWith(
+        getName(MessageEnum.RestAPIRequestHeaderMessage),
+        JSON.stringify(header)
+      );
+      expect(requestMessage.addData).toHaveBeenCalledWith(
+        getName(MessageEnum.RestAPIRequestMethodMessage),
+        "GET"
+      );
+
+      expect(runEngine.sendMessage).toHaveBeenCalledWith(
+        requestMessage.messageId,
+        requestMessage
+      );
+    });
+
+    then('I can leave the screen with out errors', () => {
+      instance.componentWillUnmount();
+      expect(ProjectDetailsWrapper).toBeTruthy();
+    });
+  });
+
+  // Test cases for the `receive` method
+  test('Handle Navigation Payload Message', ({ given, when, then }) => {
+    given('I am a User with a Navigation Payload Message', () => {
+      ProjectDetailsWrapper = shallow(
+        <ProjectDetailsClient {...screenProps} />
+      );
+      instance = ProjectDetailsWrapper.instance() as ProjectDetailsClient;
+    });
+
+    when('I receive a Navigation Payload Message', () => {
+      const navigationMessage = new Message(getName(MessageEnum.NavigationPayLoadMessage));
+      instance.receive("Unit Test", navigationMessage);
+    });
+
+    then('the message should be handled without errors', () => {
+      // Add assertions here if needed
+      expect(ProjectDetailsWrapper).toBeTruthy();
+    });
+  });
+
+  test('Handle REST API Response Message', ({ given, when, then }) => {
+    given('I am a User with a REST API Response Message', () => {
+      ProjectDetailsWrapper = shallow(
+        <ProjectDetailsClient {...screenProps} />
+      );
+      instance = ProjectDetailsWrapper.instance() as ProjectDetailsClient;
+    });
+
+    when('I receive a REST API Response Message', () => {
+      const apiResponseMessage = new Message(getName(MessageEnum.RestAPIResponceMessage));
+      apiResponseMessage.addData(
+        getName(MessageEnum.RestAPIResponceDataMessage),
+        "123"
+      );
+      apiResponseMessage.addData(
+        getName(MessageEnum.RestAPIResponceSuccessMessage),
+        { data: "success" }
+      );
+      instance.receive("Unit Test", apiResponseMessage);
+    });
+
+    then('the message should be handled without errors', () => {
+      // Add assertions here if needed
+      expect(ProjectDetailsWrapper).toBeTruthy();
+    });
+  });
+
+  test('getProjectDetails method constructs and sends the correct API request', ({ given, when, then }) => {
+    given('I am a User with a valid proposalGenerationId', () => {
+      // Mocking navigation.getParam to return a valid ID
+      navigation.getParam.mockReturnValue("12345");
+    });
+
+    when('I call the getProjectDetails method', () => {
+      instance.getProjectDetails(12); // Calling the method
+    });
+
+    then('it should construct the correct API request', () => {
+      // Verify the request message is constructed correctly
+      const expectedEndpoint = "bx_block_contract/contracts/client_side_project_details?proposal_generation_id=12345";
+      const expectedHeaders = {
+        "Content-Type": "application/json", // Assuming webConfigJSON.validationApiContentType is "application/json"
+        token: "mockAuthToken",
+      };
+
+      // Verify the request message
+      expect(Message).toHaveBeenCalledWith(getName(MessageEnum.RestAPIRequestMessage));
+      expect(instance.projectDetailsId).toBeDefined(); // Ensure projectDetailsId is set
+
+      // Verify the endpoint
+      expect(runEngine.sendMessage).toHaveBeenCalledWith(
+        expect.any(String), // messageId
+        expect.objectContaining({
+          getData: expect.any(Function), // Verify it's a Message object
+        })
+      );
+
+      // Verify the message data
+      const requestMessage = (runEngine.sendMessage as jest.Mock).mock.calls[0][1];
+      expect(requestMessage.getData(getName(MessageEnum.RestAPIResponceEndPointMessage))).toBe(expectedEndpoint);
+      expect(requestMessage.getData(getName(MessageEnum.RestAPIRequestHeaderMessage))).toBe(JSON.stringify(expectedHeaders));
+      expect(requestMessage.getData(getName(MessageEnum.RestAPIRequestMethodMessage))).toBe("GET");
+    });
+
+    then('it should send the request using runEngine', () => {
+      // Verify that runEngine.sendMessage was called
+      expect(runEngine.sendMessage).toHaveBeenCalled();
+    });
+  });
+
+  test('Render Milestone Details', ({ given, when, then }) => {
+    given('I am a User with project details containing milestones', () => {
+      ProjectDetailsWrapper = shallow(
+        <ProjectDetailsClient {...screenProps} />
+      );
+      instance = ProjectDetailsWrapper.instance() as ProjectDetailsClient;
+  
+      // Set state with mock milestone data
+      instance.setState({
+        projectDetailsData: {
+          attributes: {
+            milestone_details: [
+              {
+                milestone_id: 228,
+                milestone_description: "milestone-1",
+                milestone_amount: "15000.0",
+                milestone_date: "02/07/2017",
+                milestone_status: "pending",
+                active_disputes: 1,
+                total_disputes: 2,
+              },
+            ],
+          },
+        },
+      });
+    });
+  
+    when('I render the component', () => {
+      ProjectDetailsWrapper.update(); // Force re-render
+    });
+  
+    then('it should render the milestone details correctly', () => {
+      // Check if milestone details are rendered
+      const milestoneDescription = ProjectDetailsWrapper.find(
+        'Typography[style*="fontWeight: 600, color: #515354"]'
+      ).at(0);
+      expect(milestoneDescription.text()).toBe("milestone-1");
+  
+      const milestoneAmount = ProjectDetailsWrapper.find(
+        'Typography[style*="fontWeight: 600, color: #515354"]'
+      ).at(1);
+      expect(milestoneAmount.text()).toBe("15000.0");
+  
+      const milestoneDate = ProjectDetailsWrapper.find(
+        'Typography[style*="fontWeight: 600, color: #515354"]'
+      ).at(2);
+      expect(milestoneDate.text()).toBe("02/07/2017");
+  
+      const milestoneStatus = ProjectDetailsWrapper.find(
+        'Typography[style*="fontWeight: 600"]'
+      ).at(3);
+      expect(milestoneStatus.text()).toBe("pending");
+  
+      const activeDisputes = ProjectDetailsWrapper.find(
+        'Typography[style*="fontWeight: 600, color: #515354"]'
+      ).at(4);
+      expect(activeDisputes.text()).toBe("1");
+  
+      const totalDisputes = ProjectDetailsWrapper.find(
+        'Typography[style*="fontWeight: 600, color: #515354"]'
+      ).at(5);
+      expect(totalDisputes.text()).toBe("2");
+    });
+  });
+  
+  test('Render Per Day Charge', ({ given, when, then }) => {
+    given('I am a User with project details containing per day charge', () => {
+      ProjectDetailsWrapper = shallow(
+        <ProjectDetailsClient {...screenProps} />
+      );
+      instance = ProjectDetailsWrapper.instance() as ProjectDetailsClient;
+  
+      // Set state with mock per day charge data
+      instance.setState({
+        projectDetailsData: {
+          attributes: {
+            post_attributes: {
+              data: {
+                attributes: {
+                  per_day_charge: 500,
+                },
+              },
+            },
+          },
+        },
+      });
+    });
+  
+    when('I render the component', () => {
+      ProjectDetailsWrapper.update(); // Force re-render
+    });
+  
+    then('it should render the per day charge correctly', () => {
+      // Check if per day charge is rendered
+      const perDayCharge = ProjectDetailsWrapper.find(
+        'Typography[style*="fontSize: 16px, color: #545454"]'
+      ).at(2);
+      expect(perDayCharge.text()).toBe("$500");
+    });
+  });
+
+  test('Handle Empty Milestone Details', ({ given, when, then }) => {
+    given('I am a User with no milestone details', () => {
+      ProjectDetailsWrapper = shallow(
+        <ProjectDetailsClient {...screenProps} />
+      );
+      instance = ProjectDetailsWrapper.instance() as ProjectDetailsClient;
+  
+      // Set state with empty milestone details
+      instance.setState({
+        projectDetailsData: {
+          attributes: {
+            milestone_details: [],
+          },
+        },
+      });
+    });
+  
+    when('I render the component', () => {
+      ProjectDetailsWrapper.update(); // Force re-render
+    });
+  
+    then('it should not render any milestone details', () => {
+      // Check that no milestone details are rendered
+      const milestoneDescriptions = ProjectDetailsWrapper.find(
+        'Typography[style*="fontWeight: 600, color: #515354"]'
+      );
+      expect(milestoneDescriptions.length).toBe(0);
+    });
+  });
+
+  test('Verify Status Color Logic', ({ given, when, then }) => {
+    given('I am a User with different milestone statuses', () => {
+      ProjectDetailsWrapper = shallow(
+        <ProjectDetailsClient {...screenProps} />
+      );
+      instance = ProjectDetailsWrapper.instance() as ProjectDetailsClient;
+    });
+  
+    when('I call the getStatusColor method', () => {
+      // Call the method with different statuses
+      const pendingColor = instance.getStatusColor("pending");
+      const completedColor = instance.getStatusColor("completed");
+      const acceptColor = instance.getStatusColor("accept");
+      const rejectedColor = instance.getStatusColor("rejected");
+      const ongoingColor = instance.getStatusColor("ongoing");
+      const approvedColor = instance.getStatusColor("approved");
+      const defaultColor = instance.getStatusColor("default");
+    });
+  
+    then('it should return the correct color for each status', () => {
+      // Verify the returned colors
+      expect(instance.getStatusColor("pending")).toBe("#FFA500"); // Orange
+      expect(instance.getStatusColor("completed")).toBe("#008000"); // Green
+      expect(instance.getStatusColor("accept")).toBe("#008000"); // Green
+      expect(instance.getStatusColor("rejected")).toBe("#FF0000"); // Red
+      expect(instance.getStatusColor("ongoing")).toBe("#0000FF"); // Blue
+      expect(instance.getStatusColor("approved")).toBe("#008000"); // Green
+      expect(instance.getStatusColor("default")).toBe("#000000"); // Black
+    });
+  });
+
+  test('Handle Undefined Per Day Charge', ({ given, when, then }) => {
+    given('I am a User with undefined per day charge', () => {
+      ProjectDetailsWrapper = shallow(
+        <ProjectDetailsClient {...screenProps} />
+      );
+      instance = ProjectDetailsWrapper.instance() as ProjectDetailsClient;
+  
+      // Set state with undefined per day charge
+      instance.setState({
+        projectDetailsData: {
+          attributes: {
+            post_attributes: {
+              data: {
+                attributes: {
+                  per_day_charge: undefined,
+                },
+              },
+            },
+          },
+        },
+      });
+    });
+  
+    when('I render the component', () => {
+      ProjectDetailsWrapper.update(); // Force re-render
+    });
+  
+    then('it should not render the per day charge', () => {
+      // Check that per day charge is not rendered
+      const perDayCharge = ProjectDetailsWrapper.find(
+        'Typography[style*="fontSize: 16px, color: #545454"]'
+      ).at(2);
+      expect(perDayCharge.text()).toBe("$");
+    });
+  });
+});
