@@ -1,0 +1,748 @@
+import React from "react";
+// Customizable Area Start
+import {
+  Box,
+  Button,
+  Typography,
+  Grid,
+  FormControl,
+  OutlinedInput,
+  Select,
+  MenuItem,
+  Avatar,
+  styled,
+  IconButton,
+} from "@material-ui/core";
+import CloseIcon from '@material-ui/icons/Close';
+
+import ClientNavBar from "../../dashboard/src/Components/ClientNavBar.web";
+import FooterWeb from "../../dashboard/src/Components/Footer.web";
+import PhoneInput from 'react-phone-input-2'
+import 'react-phone-input-2/lib/style.css'
+import RemindMeDialogbox from "./RemindMeDialogbox.web";
+
+export const CustomDiv = styled('div')((props: any) => ({
+  '& .react-tel-input .flag-dropdown': {
+    borderColor: props.phoneError ? 'red' : undefined,
+  },
+}));
+// Customizable Area End
+
+import ClientBasicDetailsFormController, {
+  Props,
+} from "./ClientBasicDetailsFormController.web";
+import { avatar } from "./assets";
+
+export default class ClientBasicDetailsForm extends ClientBasicDetailsFormController {
+  constructor(props: Props) {
+    super(props);
+    // Customizable Area Start
+    // Customizable Area End
+  }
+
+  // Customizable Area Start
+  dateOfBirthClientError = () => {
+    return (
+      this.state.dateOfBirthClientError && (
+        <div style={webStyle.formError}>
+          {this.state.dateOfBirthClientError}
+        </div>
+      )
+    )
+  }
+
+  streetAddressError = () => {
+    return (
+      this.state.streetAddressError && (
+        <div style={webStyle.formError}>
+          {this.state.streetAddressError}
+        </div>
+      )
+    );
+  };
+
+  countryClientError = () => {
+    return (
+      this.state.countryClientError && (
+        <div style={webStyle.formError}>
+          {this.state.countryClientError}
+        </div>
+      )
+    );
+  };
+
+  suiteError = () => {
+    return (
+      this.state.suiteError && (
+        <div style={webStyle.formError}>
+          {this.state.suiteError}
+        </div>
+      )
+    );
+  };
+
+  cityError = () => {
+    return (
+      this.state.cityError && (
+        <div style={webStyle.formError}>
+          {this.state.cityError}
+        </div>
+      )
+    );
+  };
+
+  phoneError = () => {
+    return (
+      this.state.phoneError && (
+        <div style={webStyle.formError}>
+          {this.state.phoneError}
+        </div>
+      )
+    );
+  };
+
+  profileTitleError = () => {
+    return (
+      this.state.profileTitleError && (
+        <div style={webStyle.formError}>
+          {this.state.profileTitleError}
+        </div>
+      )
+    );
+  };
+
+  skillsError = () => {
+    return (
+      this.state.skillsError && (
+        <div style={webStyle.formError}>
+          {this.state.skillsError}
+        </div>
+      )
+    );
+  };
+
+  descriptionError = () => {
+    return (
+      this.state.descriptionError && (
+        <div style={webStyle.formError}>
+          {this.state.descriptionError}
+        </div>
+      )
+    );
+  };
+
+  zipCodeError = () => {
+    return (
+      this.state.zipCodeError && (
+        <div style={webStyle.formError}>
+          {this.state.zipCodeError}
+        </div>
+      )
+    );
+  };
+
+  // Customizable Area End
+
+  render() {
+    // Customizable Area Start
+    const basicDetailsData = this.state.basicDetailsData.data.attributes
+    // Customizable Area End
+    return (
+      // Customizable Area Start
+
+      <>
+        <ClientNavBar profileImg={this.state.profileImage} />
+        <Styled_wrapper>
+          <Typography style={webStyle.basicDetailsHead}>Add your Basic details</Typography>
+          <Box style={webStyle.BoxTwoStyle}>
+            <ImageUpload_Grid item xs={12} sm={12} >
+              <div>
+                {this.state.profileImage ? <Avatar src={this.state.profileImage} className="Avatar_upload" />
+                  :
+                  <Avatar src={avatar} className="Avatar_upload" />}
+              </div>
+              <div style={{ marginTop: "10px" }}>
+                <Typography style={webStyle.nameStyle}>
+                  {this.state.profileDetails?.attributes?.first_name} {this.state.profileDetails?.attributes?.last_name}
+                </Typography>
+                <Typography style={webStyle.emailStyle} >
+                  {this.state.profileDetails?.attributes?.email}
+                </Typography>
+                <button
+                  style={webStyle.updateProfileBtn}
+                  onClick={this.handleEditClick}
+                  data-testid="profile-pic-edit"
+                >
+                  Upload profile picture
+                </button>
+                <input
+                  type="file"
+                  data-testid="profileImageInput"
+                  ref={this.state.fileInputRef}
+                  style={{ display: "none" }}
+                  onChange={this.handleFileChange}
+                  accept="image/*"
+                />
+                {this.state.imageUploadError && (
+                  <Typography style={webStyle.formError}>
+                    {this.state.imageUploadError}
+                  </Typography>
+                )}
+              </div>
+            </ImageUpload_Grid>
+
+            <Grid container >
+              <Grid item xs={12} sm={12}>
+                <Grid container spacing={3}>
+
+                  <Grid item xs={12}>
+                    <Grid item xs={12} sm={4} style={{ marginTop: "24px" }}>
+                      <Typography style={webStyle.labelStyle}>Date of birth*</Typography>
+                      <InputField style={webStyle.textField} variant="outlined">
+                        <OutlinedInput
+                          type="date"
+                          name="date"
+                          value={this.state.dateOfBirth}
+                          onChange={this.handleDateChange}
+                          error={!!this.state.dateOfBirthClientError}
+                        />
+                      </InputField>
+                      {this.dateOfBirthClientError()}
+                    </Grid>
+                  </Grid>
+
+                  <Grid item xs={12} sm={8}>
+                    <Typography style={webStyle.labelStyle}>Street address*</Typography>
+                    <InputField style={webStyle.textField} variant="outlined">
+                      <OutlinedInput
+                        name="streetAddress"
+                        placeholder="Enter street address"
+                        value={this.state.streetAddress}
+                        onChange={this.handleStreetAdressChange}
+                        error={!!this.state.streetAddressError}
+                      />
+                    </InputField>
+                    {this.streetAddressError()}
+                  </Grid>
+
+                  <Grid item xs={12} sm={4}>
+                    <Typography style={webStyle.labelStyle}>Apt/Suite*</Typography>
+                    <InputField style={webStyle.textField} variant="outlined">
+                      <OutlinedInput
+                        placeholder="Enter Apt/Suite"
+                        name="aptSuite"
+                        value={this.state.suite}
+                        onChange={this.handleSuiteChange}
+                        error={!!this.state.suiteError}
+                      />
+                    </InputField>
+                    {this.suiteError()}
+                  </Grid>
+
+                  <Grid item xs={12} sm={8}>
+                    <Typography style={webStyle.labelStyle}>Additional address 2</Typography>
+                    <InputField style={webStyle.textField} variant="outlined">
+                      <OutlinedInput
+                        name="additionalAddress2"
+                        placeholder="Enter street address"
+                        value={this.state.additionalAddress}
+                        onChange={this.handleAddressChange}
+                      />
+                    </InputField>
+                  </Grid>
+
+
+                  <Grid item xs={12} sm={4}>
+                    <Typography style={webStyle.labelStyle}>Country*</Typography>
+                    <InputField style={webStyle.textField} variant="outlined">
+                      <Select
+                        defaultValue=""
+                        displayEmpty
+                        name="country"
+                        value={this.state.country}
+                        error={!!this.state.countryClientError}
+                        MenuProps={{
+                          anchorOrigin: {
+                            vertical: "bottom",
+                            horizontal: "left"
+                          },
+                          transformOrigin: {
+                            vertical: "bottom",
+                            horizontal: "left"
+                          },
+                          getContentAnchorEl: null
+                        }}
+                        onChange={(event) => this.handleCountryChange(event)}
+                        data-test-id="counter">
+                        <MenuItem value="" disabled>
+                          Select Country
+                        </MenuItem>
+                        {this.state.countryList && this.state.countryList.map((country) => (
+                          <SelectManu_style key={country.id} value={country.name} >
+                            {country.name}
+                          </SelectManu_style>
+                        ))}
+                      </Select>
+                    </InputField>
+                    {this.countryClientError()}
+                  </Grid>
+
+
+                  <Grid item xs={12} sm={4}>
+                    <Typography style={webStyle.labelStyle}>City*</Typography>
+                    <InputField style={webStyle.textField} variant="outlined">
+                      <OutlinedInput
+                        placeholder="Enter city"
+                        error={!!this.state.cityError}
+                        name="city"
+                        value={this.state.city}
+                        onChange={this.handleCityChange}
+                      />
+                    </InputField>
+                    {this.cityError()}
+                  </Grid>
+
+                  <Grid item xs={12} sm={4}>
+                    <Typography style={webStyle.labelStyle}>State</Typography>
+                    <InputField style={webStyle.textField} variant="outlined">
+                      <Select
+                        defaultValue=""
+                        displayEmpty
+                        name="state"
+                        value={this.state.state}
+                        onChange={(event) => this.handleStateChange(event)}
+                        data-test-id="counterstate">
+
+                        <MenuItem value="" disabled style={{ color: 'grey' }}>
+                          Select state
+                        </MenuItem>
+                        {this.state.stateList.map((state) => (
+                          <SelectManu_style key={state.id} value={state.id}>
+                            {state.name}
+                          </SelectManu_style>
+                        ))}
+                      </Select>
+                    </InputField>
+                  </Grid>
+
+                  <Grid item xs={12} sm={4}>
+                    <Typography style={webStyle.labelStyle}>ZIP/Postal code</Typography>
+                    <InputField style={webStyle.textField} variant="outlined">
+                      <OutlinedInput
+                        placeholder="Enter ZIP/Postal code"
+                        name="zipCode"
+                        value={this.state.zipCode}
+                        onChange={this.handleZipCodeChange}
+                        error={!!this.state.zipCodeError}
+                      />
+                    </InputField>
+                    {this.zipCodeError()}
+                  </Grid>
+
+                  <Grid item xs={12} sm={4}>
+                    <Typography style={webStyle.labelStyle}>Phone*</Typography>
+                    <CustomDiv phoneError={this.state.phoneError}>
+                      <PhoneInput
+                        inputStyle={{
+                          width: "100%", height: 55,
+                          borderColor: this.state.phoneError ? 'red' : undefined,
+                        }}
+                        country={'in'}
+                        value={`${this.state.countryCode}${this.state.phone}`}
+                        data-test-id="phone"
+                        onChange={this.handlePhoneChange}
+                      />
+                    </CustomDiv>
+                    {this.phoneError()}
+                  </Grid>
+
+                </Grid>
+              </Grid>
+            </Grid>
+          </Box>
+
+          <Box style={webStyle.mainSubBox}>
+            <Typography className="basicDetailsHead">Add your Profile</Typography>
+            <Box style={webStyle.BoxTwoStyle}>
+              <Grid container spacing={3}>
+
+                <Grid item xs={12}>
+                  <Typography style={webStyle.labelStyle}>Your Profile*</Typography>
+                  <InputField style={webStyle.textField} variant="outlined">
+                    <Select
+                      name="jobTitle"
+                      defaultValue=""
+                      value={this.state.profileTitle}
+                      error={!!this.state.profileTitleError}
+                      displayEmpty
+                      MenuProps={{
+                        anchorOrigin: {
+                          vertical: "bottom",
+                          horizontal: "left"
+                        },
+                        transformOrigin: {
+                          vertical: "top",
+                          horizontal: "left"
+                        },
+                        getContentAnchorEl: null
+                      }}
+                      onChange={this.handleProfileTitleChange}
+                    >
+                      <MenuItem value="" disabled >
+                        Select Profile
+                      </MenuItem>
+                      <SelectManu_style value="Patent Attorney">Patent Attorney</SelectManu_style>
+                      <SelectManu_style value="Inventor">Inventor</SelectManu_style>
+                      <SelectManu_style value="Startup">Startup</SelectManu_style>
+                      <SelectManu_style value="Small and medium-sized enterprises (SMEs)">Small and medium-sized enterprises (SMEs)</SelectManu_style>
+                      <SelectManu_style value="Large technology firm">Large technology firm</SelectManu_style>
+                      <SelectManu_style value="University and research institution">University and research institution</SelectManu_style>
+                      <SelectManu_style value="Trademark Lawyer">Trademark Lawyer</SelectManu_style>
+                      <SelectManu_style value="Retail business">Retail business</SelectManu_style>
+                      <SelectManu_style value="Fashion brand">Fashion brand</SelectManu_style>
+                      <SelectManu_style value="Tech startup">Tech startup</SelectManu_style>
+                    </Select>
+                  </InputField>
+                  {this.profileTitleError()}
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Typography style={webStyle.labelStyle}>Description*</Typography>
+                  <InputField style={webStyle.textField} variant="outlined">
+                    <OutlinedInput placeholder="Tell us about yourself"
+                      fullWidth
+                      multiline
+                      minRows={4}
+                      name="description"
+                      value={this.state.description}
+                      onChange={this.handleDescriptionChange}
+                      error={!!this.state.descriptionError}
+                    />
+                  </InputField>
+                  {this.descriptionError()}
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+          <Box>
+            <Typography style={{
+              fontSize: '16px',
+              fontWeight: 400,
+              fontFamily: 'Rubik, Regular',
+              marginTop: '16px',
+            }}>* indicates required</Typography>
+          </Box>
+          <Grid container justifyContent="space-between" alignItems="center" style={{ marginTop: "48px" }}>
+            <Grid item>
+              <Back_button_Custom variant="outlined" onClick={() => this.props.navigation.goBack()}>
+                BACK
+              </Back_button_Custom>
+            </Grid>
+            <Grid item>
+              <Grid container spacing={2}>
+                <Grid item>
+                  <Button
+                    variant="text"
+                    onClick={() => { this.doItLater() }}
+                    className="laterText"
+                  >
+                    I’ll Do It Later
+                  </Button>
+                </Grid>
+                <Grid item>
+                  <Next_button_Custom variant="contained" onClick={this.handleNext}>
+                    FINISH
+                  </Next_button_Custom>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+
+
+          {this.state.do_It_Later ? <>
+            <RemindMeDialogbox navigation={undefined} id={""} />
+          </> : ""}
+        </Styled_wrapper>
+        <FooterWeb />
+      </>
+      // Customizable Area End
+    );
+  }
+}
+
+// Customizable Area Start
+const webStyle = {
+
+  mainBox: {
+    padding: "18px 21px",
+    maxWidth: "1500px",
+    margin: "auto"
+
+  },
+  stepperStyle: {
+    width: "100%",
+    height: "auto",
+    maxWidth: "1500px",
+    margin: "0 auto",
+    display: "block",
+  },
+  mainSubBox: {
+    marginTop: "28px"
+  },
+  basicDetailsHead: {
+    fontFamily: "Rubik",
+    fontSize: "32px",
+    fontWeight: 600,
+  },
+  BoxTwoStyle: {
+    border: "1px solid #B1B1B1",
+    padding: "28px",
+    borderRadius: "12px",
+    marginTop: "20px"
+  },
+  borderRadius: {
+    borderRadius: "12px"
+  },
+  nameStyle: {
+    fontFamily: "Rubik",
+    fontSize: "28px",
+    fontweight: 500,
+    color: "#0A0A0A"
+  },
+  emailStyle: {
+    fontFamily: "Rubik",
+    fontSize: "18px",
+    color: "#0A0A0A"
+  },
+  updateProfileBtn: {
+    color: "#364BA0",
+    border: "1px solid #364BA0",
+    borderRadius: "26px",
+    marginTop: "16px",
+    display: "flex",
+    justifyContent: "center",
+    padding: "10px",
+    fontSize: "20px",
+    fontFamily: "Rubik",
+    fontWeight: 500,
+    background: 'none'
+  },
+  labelStyle: {
+    fontFamily: "Rubik",
+    fontSize: "16px",
+    color: "#0A0A0A",
+    fontWeight: 500,
+    marginBottom: "8px"
+  },
+  textField: {
+    width: "100%",
+    "&.MuiFormLabel-root.Mui-focused ": {
+      color: "#6F6E6E !important",
+    },
+    "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline ": {
+      borderColor: "#6F6E6E !important",
+      borderRadius: "12px !important"
+    },
+    "& .MuiOutlinedInput-root": {
+      borderRadius: "12px !important"
+    }
+  },
+
+  chipStyle: {
+    background: "#E4F5FF",
+    borderRadius: "26px",
+    display: "flex",
+    padding: "8px",
+    gap: "6px",
+    justifyContent: "center",
+  },
+  nextButton: {
+    backgroundColor: '364BA0',
+    color: '#fff',
+    height: "40px",
+    padding: "22px",
+    fontFamily: "Rubik",
+    fontSize: "18px",
+    fontWeight: 500
+  },
+  buttonStyle: {
+    margin: '10px 0',
+    fontWeight: 500,
+
+  },
+  backButton: {
+    borderColor: '#364BA0',
+    color: '#364BA0',
+    padding: "22px",
+    fontFamily: "Rubik",
+    fontSize: "18px",
+    fontWeight: 500,
+    height: "40px",
+  },
+
+  laterText: {
+    color: '#364BA0',
+    fontFamily: "Rubik",
+    fontSize: "18px",
+    textTransform: 'uppercase' as 'uppercase',
+    textDecoration: 'underline' as 'underline',
+    fontWeight: 500
+  },
+  formError: {
+    color: "red",
+    fontFamily: "'Inter', sans-serif",
+    marginTop: "4px",
+    fontSize: 14,
+  },
+  skillStyle: {
+    color: '#0A0A0A',
+    padding: "2px 8px"
+  },
+  iconStyle: {
+    color: '#0A0A0A',
+    fontSize: '20px',
+  },
+};
+
+const ImageUpload_Grid = styled(Grid)({
+  display: "flex",
+  gap: "48px",
+  "@media(max-width:500px)": {
+    display: "block",
+  },
+  "& .Avatar_upload": {
+    width: "150px",
+    height: "150px",
+    "@media(max-width:500px)": {
+      width: "100px",
+      height: "100px",
+    },
+  }
+});
+
+const Styled_wrapper = styled(Box)({
+  marginTop: "48px",
+  padding: "18px 21px",
+  maxWidth: "1500px",
+  margin: "auto",
+  "@media(max-width:700px)": {
+    padding: "12px 25px",
+  },
+  '& .basicDetailsHead': {
+    fontFamily: "Rubik",
+    fontSize: "32px",
+    fontWeight: 600,
+    "@media(max-width:700px)": {
+      fontSize: "28px",
+
+    },
+    "@media(max-width:500px)": {
+      fontSize: "24px",
+    },
+  },
+  "& .laterText": {
+    color: '#364BA0',
+    textTransform: 'uppercase' as 'uppercase',
+    textDecoration: 'underline' as 'underline',
+    fontFamily: "Rubik",
+    fontSize: "18px",
+    fontWeight: 500,
+    "@media(max-width:500px)": {
+      fontSize: "15px",
+
+    },
+  },
+});
+
+const InputField = styled(FormControl)({
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "12px !important"
+  },
+  "@media(max-width:500px)": {
+    "&  .MuiOutlinedInput-input": {
+      padding: "11.5px 12px",
+    }
+  },
+
+  "& .MuiListItem-button": {
+    "& :hover": {
+      textDecoration: "none",
+      backgroundolor: "red",
+
+    }
+  }
+});
+const Next_button_Custom = styled(Button)({
+  backgroundColor: '364BA0',
+  color: '#fff',
+  height: "40px",
+  fontFamily: "Rubik",
+  fontSize: "18px",
+  padding: "22px",
+  fontWeight: 500,
+  borderRadius: '12px',
+  "@media(max-width:500px)": {
+    padding: "14px"
+  },
+  "& .MuiButton-label": {
+    fontSize: "14px"
+  }
+
+});
+const Back_button_Custom = styled(Button)({
+  color: '#364BA0',
+  borderColor: '#364BA0',
+  height: "40px",
+  fontFamily: "Rubik",
+  padding: "22px",
+  fontWeight: 500,
+  fontSize: "18px",
+  borderRadius: '12px',
+  "@media(max-width:500px)": {
+    padding: "14px"
+
+  },
+  "& .MuiButton-label": {
+    fontSize: "14px"
+  }
+
+});
+const SelectManu_style = styled(MenuItem)({
+
+  "&:hover": {
+    backgroundColor: "364BA0",
+    color: "white",
+  },
+});
+
+
+const Stepper_custom_design = styled(Box)({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  margin: "30px 0 ",
+  "@media (max-width: 900px)": {
+    justifyContent: "flex-start",
+    flexWrap: "wrap",
+
+  },
+  "& .img_stepper": {
+    height: "50px",
+    width: "100%"
+  },
+  "& .box_1": {
+    width: "auto",
+  },
+  "& .img_second": {
+    width: "36%",
+    "@media (max-width: 900px)": {
+      width: "auto",
+
+
+    },
+
+  }
+
+
+});
+// Customizable Area End
