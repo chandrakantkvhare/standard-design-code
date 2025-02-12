@@ -1,0 +1,38 @@
+Feature: ProjectTrackingClient
+    Scenario: User navigates to ProjectTracking       
+        Given I am a User loading ProjectTracking       
+        When I navigate to the ProjectTracking
+        Then ProjectTracking will load with out errors
+        Then I can leave the screen without errors
+
+    Scenario: getStatusColor method returns the correct color for each status       
+        Given I have a status string       
+        When I call the getStatusColor method with a specific status
+        Then it should return the correct color for "ongoing" status
+        And it should return the correct color for "completed" status
+        And it should return the correct color for "pending" status
+        And it should return the correct color for "accept" status
+        And it should return the correct color for "rejected" status
+        And it should return the correct color for "approved" status
+        And it should return the default color for an unknown status
+
+    Scenario: Handle Navigation Payload Message       
+        Given I am a User with a Navigation Payload Message       
+        When I receive a Navigation Payload Message
+        Then the message should be handled without errors
+
+    Scenario: Handle REST API Response Message       
+        Given I am a User with a REST API Response Message       
+        When I receive a REST API Response Message
+        Then the message should be handled without errors
+     
+    Scenario: handleProjectTrackingRes - Success with matching webApiRequestCallId   
+
+    Scenario: handleProjectTrackingRes - Success with non-matching webApiRequestCallId
+
+    Scenario: handleProjectTrackingRes - Error Response  
+
+    Scenario: handleProjectTrackingRes - Undefined or Null Response 
+
+   
+       
